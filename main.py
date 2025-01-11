@@ -1,34 +1,16 @@
 
-import requests, csv, json
-import configparser
-
-parser = configparser.ConfigParser()
-parser.read('config.txt')
+import csv
+from functions import api_call, info_to_csv
+import pandas as pd
 
 
-# Project plan
-# - get data from  api
-# add to some spreadsheet for activity simple task
-# use pd for some manipulation
-# add all to git
 
-    
+api_data = api_call()
 
-api = parser.get('API', 'access_key')
-url = f"https://api.aviationstack.com/v1/flights?access_key={api}"
+update_csv = info_to_csv(api_data)
 
-querystring = {"date":"2025-01-03"}
+# open data from csv using pd
 
-response = requests.get(url, params=querystring)
-jsonObj = json.loads(response.text)
-results = jsonObj['data']
+df = pd.read_csv('aviation_data.csv')
 
-print(results)
-# for i in response:
-#     print(i)
-
-# filename = "aviation_data.csv"
-# with open(filename, 'w') as csvfile:
-#     csvwriter = csv.writer(csvfile)
-#     csvwriter.writerows(rows)
-
+print(df) 
