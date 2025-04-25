@@ -15,18 +15,13 @@ def extract_data(csv_name, table_name):
     df_iter = pd.read_csv(csv_name, iterator=True, chunksize=100000)
 
     df = next(df_iter)
-    
-
-    # df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
-    # df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
-
     return df
 
 @task(log_prints=True)
 def transform_data(df):
-    print(f"pre: missing passenger count: {df['flight_status'].isin([0]).sum()}")
+    print(f"pre: landed planes count: {df['flight_status'].isin([0]).sum()}")
     df = df[df['flight_status'] != 'landed']
-    print(f"post: missing passenger count: {df['flight_status'].isin([0]).sum()}")
+    print(f"post: landed planes count: {df['flight_status'].isin([0]).sum()}")
     return df
 
 @task(log_prints=True, retries=3)
@@ -41,7 +36,7 @@ def log_subflow(table_name: str):
     print(f"Logging Subflow for: {table_name}")
 
 @flow(name="Ingest Data")
-def main_flow(user, password, host, port, db, table_name):
+def main_flow(table_name):
 
     csv_data = "/Users/admin/code/aviation_data/aviation_data.csv"
     log_subflow(table_name)
@@ -50,11 +45,6 @@ def main_flow(user, password, host, port, db, table_name):
     load_data(table_name, data)
 
 if __name__ == '__main__':
-    user = "postgres"
-    password = "Learner1"
-    host = "localhost"
-    port = "5432"
-    db = "aviation_data"
     table_name = "aviation_data"
 
-    main_flow(user, password, host, port, db, table_name)
+    main_flow(table_name)
